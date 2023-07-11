@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Upload Image and Transform</title>
+</head>
+<body>
+
+<h1>Upload Image and Transform</h1>
+<form enctype="multipart/form-data" method="post" onsubmit="uploadImage(event)">
+  <input type="file" name="image" id="image" accept="image/*" required>
+  <input type="submit" value="Upload">
+</form>
+
+<div id="result" style="display: flex;" hidden>
+  <div style="margin-right: 20px;">
+    <h2>Original Image</h2>
+    <img id="original" style="max-width: 350px; max-height: 450px;">
+  </div>
+  <div>
+    <h2>Transformed Image</h2>
+    <img id="transformed" style="max-width: 350px; max-height: 450px;">
+  </div>
+</div>
+
+<script>
+async function uploadImage(event) {
+  event.preventDefault();
+  const input = document.getElementById('image');
+  const original = document.getElementById('original');
+  const transformed = document.getElementById('transformed');
+
+  const formData = new FormData();
+  formData.append('image', input.files[0]);
+
+  try {
+    const response = await fetch('/process_image', {
+      method: 'POST',
+      body: formData
+    });
+
+    if (!response.ok) {
+      throw response;
+    }
+
+    const { originalImage, transformedImage } = await response.json();
+    original.src = `data:image/jpeg;base64,${originalImage}`;
+    transformed.src = `data:image/jpeg;base64,${transformedImage}`;
+    document.getElementById('result').hidden = false;
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+</script>
+
+</body>
+</html>
